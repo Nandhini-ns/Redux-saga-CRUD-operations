@@ -1,38 +1,54 @@
+
 import { call, put, takeLatest } from 'redux-saga/effects';
-import * as types from '../types';
-import * as service from '../../services/studentService';
+import { addStudent, deleteStudent, getStudents, updateStudent } from '../../Service/Students_Api';
+import { addStudentFailure, addStudentSuccess, deleteStudentFailure,deleteStudentSuccess, fetchStudentsFailure, fetchStudentsSuccess, updateStudentFailure,updateStudentSuccess } from '../Actions/Student_Action';
+import { ADD_STUDENT_REQUEST, DELETE_STUDENT_REQUEST, FETCH_STUDENTS_REQUEST, UPDATE_STUDENT_REQUEST } from '../Types/Student_Type';
 
-import {
-fetchStudentsSuccess,
-fetchStudentsFailure,
-addStudentSuccess,
-addStudentFailure,
-
-} from '../actions';
-
-
+// FETCH STUDENTS
 function* fetchStudentsSaga() {
-try {
-const res = yield call(service.getStudents);
-yield put(fetchStudentsSuccess(res.data));
-} catch (err) {
-yield put(fetchStudentsFailure(err.message));
+  try {
+    const res = yield call(getStudents); // call API function
+    yield put(fetchStudentsSuccess(res.data));
+  } catch (err) {
+    yield put(fetchStudentsFailure(err.message));
+  }
 }
-}
-
 
 function* addStudentSaga(action) {
-try {
-const res = yield call(service.createStudent, action.payload);
-yield put(addStudentSuccess(res.data));
-} catch (err) {
-yield put(addStudentFailure(err.message));
-}
+  try {
+    const res = yield call(addStudent, action.payload); // ✅ API function call
+    yield put(addStudentSuccess(res.data));
+  } catch (err) {
+    yield put(addStudentFailure(err.message));
+  }
 }
 
+// UPDATE STUDENT
+function* updateStudentSaga(action) {
+  try {
+    const res = yield call(updateStudent, action.payload); // call API function
+    yield put(updateStudentSuccess(res.data));
+  } catch (err) {
+    yield put(updateStudentFailure(err.message));
+  }
+}
 
+// DELETE STUDENT
+function* deleteStudentSaga(action) {
+  try {
+    yield call(deleteStudent, action.payload); // call API function
+    yield put(deleteStudentSuccess(action.payload)); // send deleted ID to reducer
+  } catch (err) {
+    yield put(deleteStudentFailure(err.message));
+  }
+}
+
+// WATCHER SAGA
 export default function* studentSaga() {
-yield takeLatest(types.FETCH_STUDENTS, fetchStudentsSaga);
-yield takeLatest(types.ADD_STUDENT, addStudentSaga);
+  yield takeLatest(FETCH_STUDENTS_REQUEST, fetchStudentsSaga);
+  yield takeLatest(ADD_STUDENT_REQUEST, addStudentSaga);
+  yield takeLatest(UPDATE_STUDENT_REQUEST, updateStudentSaga);
+  yield takeLatest(DELETE_STUDENT_REQUEST, deleteStudentSaga);
 }
+
 
