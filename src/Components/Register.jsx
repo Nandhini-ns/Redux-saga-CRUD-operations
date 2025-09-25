@@ -1,75 +1,13 @@
-// import React, { useState, useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { addStudent, fetchStudentsRequest } from "../Redux_saga/Actions/Student_Action";
 
-
-// export default function Register() {
-//   const dispatch = useDispatch();
-//   const { students, loading, error } = useSelector(state => state.studentsState);
-
-//   const [formData, setFormData] = useState({
-//     firstName: "",
-//     lastName: "",
-//     dob: "",
-//     gender: "Male",
-//     course: "",
-//     marksPercent: "",
-//     phone: "",
-//   });
-
-//   const [formErrors, setFormErrors] = useState({});
-
-//   useEffect(() => {
-//     dispatch(fetchStudentsRequest());
-//   }, [dispatch]);
-
-//   const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-//   const validate = () => {
-//     const errors = {};
-//     if (!formData.firstName) errors.firstName = "First name required";
-//     if (!formData.lastName) errors.lastName = "Last name required";
-//     if (!formData.dob) errors.dob = "DOB required";
-//     if (!formData.course) errors.course = "Course required";
-//     if (!formData.marksPercent) errors.marksPercent = "Marks % required";
-//     if (!formData.phone) errors.phone = "Phone required";
-//     return errors;
-//   };
-
-//   const handleSubmit = e => {
-//     e.preventDefault();
-//     const errors = validate();
-//     setFormErrors(errors);
-//     if (Object.keys(errors).length > 0) return;
-//     dispatch(addStudent(formData));
-//     setFormData({ firstName:"", lastName:"", dob:"", gender:"Male", course:"", marksPercent:"", phone:"" });
-//   };
-
-//   return (
-//     <div className="container mt-5">
-//       <h2>Register Student</h2>
-//       <form onSubmit={handleSubmit}>
-//         {/* Form inputs same as before */}
-//       </form>
-//       <hr />
-//       <h3>Students List</h3>
-//       {/* Table same as before */}
-//     </div>
-//   );
-// }
-
-
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addStudentRequest, fetchStudentsRequest } from "../Redux_saga/Actions/Student_Action";
-import { FETCH_STUDENTS_REQUEST } from "../Redux_saga/Types/Student_Type";
-// import { addStudentRequest, fetchStudentsRequest } from "../Redux_saga/Actions/Student_Action";
-
-
+import React, { useState,useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate,useLocation } from "react-router-dom";
+import { addStudentRequest, updateStudentRequest } from "../Redux_saga/Actions/Student_Action";
 
 export default function Register() {
   const dispatch = useDispatch();
-  const { students, loading, error } = useSelector((state) => state.studentsState);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     id: null,
@@ -80,15 +18,16 @@ export default function Register() {
     course: "",
     marksPercent: "",
     phone: "",
+    address: "",
   });
+
+    useEffect(() => {
+    if (location.state?.student) {
+      setFormData(location.state.student);
+      }
+       }, [location.state]);
+
   const [formErrors, setFormErrors] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Fetch students on mount
- useEffect(() => {
-  dispatch({ type: FETCH_STUDENTS_REQUEST });
-}, [dispatch]);
-
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,11 +37,20 @@ export default function Register() {
     if (!formData.firstName) errors.firstName = "First Name Required";
     if (!formData.lastName) errors.lastName = "Last Name Required";
     if (!formData.dob) errors.dob = "DOB Required";
-    if (formData.gender === "Select" || !formData.gender) {
-    errors.gender = "Gender Required";}
+    if (formData.gender === "Select" || !formData.gender)
+      errors.gender = "Gender Required";
     if (!formData.course) errors.course = "Course Required";
     if (!formData.marksPercent) errors.marksPercent = "Marks % Required";
-    if (!formData.phone) errors.phone = "Phone Required";
+
+    // ✅ Phone validation - must be exactly 10 digits
+    if (!formData.phone) {
+      errors.phone = "Phone Required";
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      errors.phone = "Phone must be exactly 10 digits";
+    }
+
+    if (!formData.address) errors.address = "Address Required";
+
     return errors;
   };
 
@@ -111,209 +59,177 @@ export default function Register() {
     const errors = validate();
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) return;
+   if (formData.id) {
+  dispatch(updateStudentRequest(formData)); // send entire formData including id
+} else {
+  dispatch(addStudentRequest(formData));
+}
 
-    if (isEditing) {
-      
-      setIsEditing(false);
-    } else {
-     dispatch(addStudentRequest(formData))
-
-    }
 
     setFormData({
       id: null,
       firstName: "",
       lastName: "",
       dob: "",
-      gender: "select",
+      gender: "Select",
       course: "",
       marksPercent: "",
       phone: "",
+      address: "",
     });
+
+    navigate("/StudentList");
   };
-
-  const handleEdit = (student) => {
-    setFormData(student);
-    setIsEditing(true);
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
-     
-    }
-  };
-
-//   const handleChange = (e) => {
-//   const { name, value } = e.target;
-
-//   // Update the form data
-//   setFormData({ ...formData, [name]: value });
-
-//   // Remove the error message for this field immediately
-//   setFormErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-// };
-
 
   return (
-    <div className="container mt-5">
-      <h2>{isEditing ? "Edit Student" : "Register Student"}</h2>
-      <form onSubmit={handleSubmit}>
-        {/* First Name */}
-        <div className="mb-3">
-          <label>First Name</label>
-          <input
-            type="text"
-            className="form-control"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-             placeholder="Enter First Name"
-          />
-          {formErrors.firstName && <small className="text-danger">{formErrors.firstName}</small>}
+    <div
+      className="d-flex justify-content-center align-items-center bg-light"
+      style={{ minHeight: "100vh" }}
+    >
+      <div className="card p-4 shadow-lg" style={{ width: "650px" }}>
+        <h2 className="text-center mb-4">Register Student</h2>
+        <form onSubmit={handleSubmit}>
+          {/* Row 1: First , Last Name */}
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">First Name<span className="text-danger">*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                name="firstName"
+                value={formData.firstName || ""}
+                onChange={handleChange}
+                placeholder="Enter First Name"
+              />
+              {formErrors.firstName && (
+                <small className="text-danger">{formErrors.firstName}</small>
+              )}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Last Name<span className="text-danger">*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                name="lastName"
+                value={formData.lastName || ""}
+                onChange={handleChange}
+                placeholder="Enter Last Name"
+              />
+              {formErrors.lastName && (
+                <small className="text-danger">{formErrors.lastName}</small>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: DOB ,Gender */}
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">Date of Birth<span className="text-danger">*</span></label>
+              <input
+                type="date"
+                className="form-control"
+                name="dob"
+                value={formData.dob}
+                onChange={handleChange}
+              />
+              {formErrors.dob && (
+                <small className="text-danger">{formErrors.dob}</small>
+              )}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Gender<span className="text-danger">*</span></label>
+              <select
+                className="form-select"
+                name="gender"
+                value={formData.gender || ""}
+                onChange={handleChange}
+              >
+                <option value="Select">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              {formErrors.gender && (
+                <small className="text-danger">{formErrors.gender}</small>
+              )}
+            </div>
+          </div>
+
+          {/* Row 3: Course + Marks */}
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">Course<span className="text-danger">*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                name="course"
+                value={formData.course || ""}
+                onChange={handleChange}
+                placeholder="Enter Course"
+              />
+              {formErrors.course && (
+                <small className="text-danger">{formErrors.course}</small>
+              )}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Marks %<span className="text-danger">*</span></label>
+              <input
+                type="number"
+                className="form-control"
+                name="marksPercent"
+                value={formData.marksPercent || ""}
+                onChange={handleChange}
+                placeholder="Enter Marks %"
+              />
+              {formErrors.marksPercent && (
+                <small className="text-danger">{formErrors.marksPercent}</small>
+              )}
+            </div>
+          </div>
+
+          {/* Row 4: Phone + Address */}
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">Phone<span className="text-danger">*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                name="phone"
+                value={formData.phone || ""}
+                onChange={handleChange}
+                placeholder="Enter 10-digit Phone"
+                maxLength="10"
+              />
+              {formErrors.phone && (
+                <small className="text-danger">{formErrors.phone}</small>
+              )}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Address<span className="text-danger">*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                name="address"
+                value={formData.address || ""}
+                onChange={handleChange}
+                placeholder="Enter Address"
+              />
+              {formErrors.address && (
+                <small className="text-danger">{formErrors.address}</small>
+              )}
+            </div>
+          </div>
+
+          {/* Submit */}
+          {/* <button type="submit" className="btn btn-primary w-100">
+            Submit
+          </button> */}
+          <div className="d-flex justify-content-end">
+         <button type="submit" className="btn btn-primary">
+           Submit
+         </button>
         </div>
-
-        {/* Last Name */}
-        <div className="mb-3">
-          <label>Last Name</label>
-          <input
-            type="text"
-            className="form-control"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-             placeholder="Enter Last Name"
-          />
-          {formErrors.lastName && <small className="text-danger">{formErrors.lastName}</small>}
-        </div>
-
-        {/* DOB */}
-        <div className="mb-3">
-          <label>Date of Birth</label>
-          <input
-            type="date"
-            className="form-control"
-            name="dob"
-            value={formData.dob}
-            onChange={handleChange}
-            placeholder="Select Date of Birth"
-          />
-          {formErrors.dob && <small className="text-danger">{formErrors.dob}</small>}
-        </div>
-
-        {/* Gender */}
-        <div className="mb-3">
-          <label>Gender</label>
-          <select
-            className="form-select"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <option value="select">Select</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-          {formErrors.gender && (
-          <small className="text-danger">{formErrors.gender}</small>)}
-        </div>
-
-        {/* Course */}
-        <div className="mb-3">
-          <label>Course</label>
-          <input
-            type="text"
-            className="form-control"
-            name="course"
-            value={formData.course}
-            onChange={handleChange}
-            placeholder="Enter Course"
-          />
-          {formErrors.course && <small className="text-danger">{formErrors.course}</small>}
-        </div>
-
-        {/* Marks */}
-        <div className="mb-3">
-          <label>Marks %</label>
-          <input
-            type="number"
-            className="form-control"
-            name="marksPercent"
-            value={formData.marksPercent}
-            onChange={handleChange}
-            placeholder="Enter Marks Percentage"
-          />
-          {formErrors.marksPercent && <small className="text-danger">{formErrors.marksPercent}</small>}
-        </div>
-
-        {/* Phone */}
-        <div className="mb-3">
-          <label>Phone</label>
-          <input
-            type="text"
-            className="form-control"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-             placeholder="Enter Phone Number"
-          />
-          {formErrors.phone && <small className="text-danger">{formErrors.phone}</small>}
-        </div>
-
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {isEditing ? "Update" : "Submit"}
-        </button>
-        {error && <p className="text-danger mt-2">{error}</p>}
-      </form>
-
-      <hr />
-      <h3>Students List</h3>
-      {students.length === 0 ? (
-        <p>No students found</p>
-      ) : (
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>DOB</th>
-              <th>Gender</th>
-              <th>Course</th>
-              <th>Marks %</th>
-              <th>Phone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student, idx) => (
-              <tr key={student.id}>
-                <td>{idx + 1}</td>
-                <td>{student.firstName}</td>
-                <td>{student.lastName}</td>
-                <td>{student.dob}</td>
-                <td>{student.gender}</td>
-                <td>{student.course}</td>
-                <td>{student.marksPercent}</td>
-                <td>{student.phone}</td>
-                <td>
-                  <button
-                    className="btn btn-sm btn-warning me-2"
-                    onClick={() => handleEdit(student)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleDelete(student.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        </form>
+      </div>
     </div>
   );
 }

@@ -23,15 +23,17 @@ function* addStudentSaga(action) {
   }
 }
 
-// UPDATE STUDENT
 function* updateStudentSaga(action) {
   try {
-    const res = yield call(updateStudent, action.payload); // call API function
+    const student = action.payload;
+    const res = yield call(updateStudent, student.id, student);
     yield put(updateStudentSuccess(res.data));
   } catch (err) {
     yield put(updateStudentFailure(err.message));
   }
 }
+
+
 
 // DELETE STUDENT
 function* deleteStudentSaga(action) {
