@@ -3,6 +3,9 @@ import React, { useState,useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate,useLocation } from "react-router-dom";
 import { addStudentRequest, updateStudentRequest } from "../Redux_saga/Actions/Student_Action";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 export default function Register() {
   const dispatch = useDispatch();
@@ -29,11 +32,21 @@ export default function Register() {
 
   const [formErrors, setFormErrors] = useState({});
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  // const handleChange = (e) =>
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+   const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // ✅ Clear error for this field as soon as user types
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: "" });
+    }
+  };
 
   const validate = () => {
     const errors = {};
+    
     if (!formData.firstName) errors.firstName = "First Name Required";
     if (!formData.lastName) errors.lastName = "Last Name Required";
     if (!formData.dob) errors.dob = "DOB Required";
@@ -61,8 +74,10 @@ export default function Register() {
     if (Object.keys(errors).length > 0) return;
    if (formData.id) {
   dispatch(updateStudentRequest(formData)); // send entire formData including id
+   toast.success("Student updated successfully!"); 
 } else {
   dispatch(addStudentRequest(formData));
+  toast.success("Student added successfully!");
 }
 
 
@@ -77,8 +92,14 @@ export default function Register() {
       phone: "",
       address: "",
     });
+     setFormErrors({});
+     toast.success("Student added successfully!");
+     setTimeout(() => {
+     navigate("/StudentList");
+     }, 1000); // 1 second delay for toast to show
 
-    navigate("/StudentList");
+
+    // navigate("/StudentList");
   };
 
   return (
@@ -230,6 +251,18 @@ export default function Register() {
         </div>
         </form>
       </div>
+      {/* ✅ Place ToastContainer here, outside the card but inside the outermost div */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+       />
     </div>
   );
 }

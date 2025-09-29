@@ -2,6 +2,8 @@ import React, { useEffect ,useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DELETE_STUDENT_REQUEST, FETCH_STUDENTS_REQUEST } from "../Redux_saga/Types/Student_Type";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function StudentList() {
   const dispatch = useDispatch();
@@ -17,13 +19,31 @@ export default function StudentList() {
   }, [dispatch]);
 
   // Filter students based on search term
-   const filteredStudents = students.filter((student) =>
-    (student.firstName || "").toLowerCase().includes(searchTerm.toLowerCase())
-   );
+//    const filteredStudents = students.filter((student) =>
+//     (student.firstName || "").toLowerCase().includes(searchTerm.toLowerCase())
+//    );
+
+// 🔹 Replace your previous filteredStudents with this:
+  const filteredStudents = students.filter((student) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      (student.firstName || "").toLowerCase().includes(term) ||
+      (student.lastName || "").toLowerCase().includes(term) ||
+      (student.dob || "").toLowerCase().includes(term) ||
+      (student.gender || "").toLowerCase().includes(term) ||
+      (student.course || "").toLowerCase().includes(term) ||
+      (student.marksPercent || "").toString().toLowerCase().includes(term) ||
+      (student.phone || "").toLowerCase().includes(term) ||
+      (student.address || "").toLowerCase().includes(term)
+    );
+  });
   
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       dispatch({ type: DELETE_STUDENT_REQUEST, payload: id });
+      setTimeout(() => {
+      toast.success("Student deleted successfully!");
+    }, 200);
     }
   };
 
@@ -35,8 +55,11 @@ export default function StudentList() {
   const handleView = (student) => {
    setSelectedStudent(student);
    setShowModal(true);
+   toast.info("Viewing student details");
   };
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => {setShowModal(false);
+     toast.success("Closed student details");
+  };
 
   return (
     <div className="container mt-5">
@@ -45,12 +68,12 @@ export default function StudentList() {
       <div className="d-flex">
       <input
       type="text"
-      className="form-control ms-2"
+      className="form-control me-4 mt-3 mb-4 pe-1 "
       placeholder="Search..."
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)} />
       <button
-        className="btn btn-success mb-3"
+        className="btn btn-success mb-3 pe-1"
         onClick={() => navigate("/register")}
       >
         + Add Student
@@ -79,7 +102,7 @@ export default function StudentList() {
             </tr>
           </thead>
           <tbody>
-            {students.map((student, id) => (
+            {filteredStudents.map((student, id) => (
               <tr key={student.id}>
                 <td>{id + 1}</td>
                 <td>{student.firstName}</td>
@@ -125,7 +148,7 @@ export default function StudentList() {
                 <h5 className="modal-title">Student Details</h5>
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn-close text-danger fw-bold"
                   onClick={handleCloseModal}
                 ></button>
               </div>
@@ -171,6 +194,18 @@ export default function StudentList() {
           </div>
         </div>
       )}
+      <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
+
     </div>
   );
 }
