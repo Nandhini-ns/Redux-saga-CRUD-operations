@@ -55,7 +55,7 @@ export default function Register() {
     if (!formData.course) errors.course = "Course Required";
     if (!formData.marksPercent) errors.marksPercent = "Marks % Required";
 
-    // ✅ Phone validation - must be exactly 10 digits
+    //  Phone validation - must be exactly 10 digits
     if (!formData.phone) {
       errors.phone = "Phone Required";
     } else if (!/^\d{10}$/.test(formData.phone)) {

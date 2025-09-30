@@ -23,7 +23,7 @@ export const StudentReducer=(state=initialState,action)=>{
        case ADD_STUDENT_FAILURE:
          return { ...state, loading: false, error: action.payload };
 
-    // 🔹 Update student success/failure
+    //  Update student success/failure
        case UPDATE_STUDENT_SUCCESS:
         return {
            ...state,
@@ -35,7 +35,7 @@ export const StudentReducer=(state=initialState,action)=>{
       case UPDATE_STUDENT_FAILURE:
          return { ...state, loading: false, error: action.payload };
 
-    // 🔹 Delete student success/failure
+    // Delete student success/failure
      case DELETE_STUDENT_SUCCESS:
         return {
          ...state,

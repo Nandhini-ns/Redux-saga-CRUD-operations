@@ -18,12 +18,8 @@ export default function StudentList() {
     dispatch({ type: FETCH_STUDENTS_REQUEST });
   }, [dispatch]);
 
-  // Filter students based on search term
-//    const filteredStudents = students.filter((student) =>
-//     (student.firstName || "").toLowerCase().includes(searchTerm.toLowerCase())
-//    );
-
-// 🔹 Replace your previous filteredStudents with this:
+  
+//  Replace your previous filteredStudents with this:
   const filteredStudents = students.filter((student) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -60,152 +56,164 @@ export default function StudentList() {
   const handleCloseModal = () => {setShowModal(false);
      toast.success("Closed student details");
   };
-
+  
   return (
-    <div className="container mt-5">
-     <div className="d-flex justify-content-between align-items-center mb-3">
-      <h2>Students List</h2>
-      <div className="d-flex">
-      <input
-      type="text"
-      className="form-control me-4 mt-3 mb-4 pe-1 "
-      placeholder="Search..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)} />
-      <button
-        className="btn btn-success mb-3 pe-1"
-        onClick={() => navigate("/register")}
-      >
-        + Add Student
-      </button>
-     </div>
-     </div>
+    <div className="container mt-4">
+      {/* Header & Search */}
+      <div className="row mb-3">
+        <div className="col-12 col-md-6 d-flex align-items-center">
+          <h2 className="mb-0">Students List</h2>
+        </div>
+        <div className="col-12 col-md-6 d-flex flex-column flex-sm-row justify-content-end">
+          <input
+            type="text"
+            className="form-control mb-2 mb-sm-0 me-sm-2"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/register")}
+          >
+            + Add Student
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
       {loading && <p>Loading...</p>}
       {error && <p className="text-danger">{error}</p>}
-      {/* {students.length === 0 ? ( */}
-       {filteredStudents.length === 0 ? (
+
+      {filteredStudents.length === 0 ? (
         <p>No students found</p>
       ) : (
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>DOB</th>
-              <th>Gender</th>
-              <th>Course</th>
-              <th>Marks %</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.map((student, id) => (
-              <tr key={student.id}>
-                <td>{id + 1}</td>
-                <td>{student.firstName}</td>
-                <td>{student.lastName}</td>
-                <td>{student.dob}</td>
-                <td>{student.gender}</td>
-                <td>{student.course}</td>
-                <td>{student.marksPercent}</td>
-                <td>{student.phone}</td>
-                <td>{student.address}</td>
-                <td>
-                  <button
-                    className="btn btn-info btn-sm me-2"
-                    onClick={() => handleView(student)}
-                  >
-                    View
-                  </button>
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleEdit(student)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(student.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Course</th>
+                <th>Marks %</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th className="text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredStudents.map((student, id) => (
+                <tr key={student.id}>
+                  <td>{id + 1}</td>
+                  <td>{student.firstName}</td>
+                  <td>{student.lastName}</td>
+                  <td>{student.dob}</td>
+                  <td>{student.gender}</td>
+                  <td>{student.course}</td>
+                  <td>{student.marksPercent}</td>
+                  <td>{student.phone}</td>
+                  <td>{student.address}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-info btn-sm me-2"
+                      onClick={() => handleView(student)}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => handleEdit(student)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDelete(student.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* View Modal */}
       {showModal && selectedStudent && (
         <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Student Details</h5>
                 <button
                   type="button"
-                  className="btn-close text-danger fw-bold"
+                  className="btn-close"
                   onClick={handleCloseModal}
                 ></button>
               </div>
               <div className="modal-body">
-                <table className="table table-bordered">
-                  <tbody>
-                    <tr>
-                      <th>First Name</th>
-                      <td>{selectedStudent.firstName}</td>
-                    </tr>
-                    <tr>
-                      <th>Last Name</th>
-                      <td>{selectedStudent.lastName}</td>
-                    </tr>
-                    <tr>
-                      <th>DOB</th>
-                      <td>{selectedStudent.dob}</td>
-                    </tr>
-                    <tr>
-                      <th>Gender</th>
-                      <td>{selectedStudent.gender}</td>
-                    </tr>
-                    <tr>
-                      <th>Course</th>
-                      <td>{selectedStudent.course}</td>
-                    </tr>
-                    <tr>
-                      <th>Marks %</th>
-                      <td>{selectedStudent.marksPercent}</td>
-                    </tr>
-                    <tr>
-                      <th>Phone</th>
-                      <td>{selectedStudent.phone}</td>
-                    </tr>
-                    <tr>
+                <div className="table-responsive">
+                  <table className="table table-bordered">
+                    <tbody>
+                      <tr>
+                        <th>First Name</th>
+                        <td>{selectedStudent.firstName}</td>
+                      </tr>
+                      <tr>
+                        <th>Last Name</th>
+                        <td>{selectedStudent.lastName}</td>
+                      </tr>
+                      <tr>
+                        <th>DOB</th>
+                        <td>{selectedStudent.dob}</td>
+                      </tr>
+                      <tr>
+                        <th>Gender</th>
+                        <td>{selectedStudent.gender}</td>
+                      </tr>
+                      <tr>
+                        <th>Course</th>
+                        <td>{selectedStudent.course}</td>
+                      </tr>
+                      <tr>
+                        <th>Marks %</th>
+                        <td>{selectedStudent.marksPercent}</td>
+                      </tr>
+                      <tr>
+                        <th>Phone</th>
+                        <td>{selectedStudent.phone}</td>
+                      </tr>
+                      <tr>
                         <th>Address</th>
                         <td>{selectedStudent.address}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
-      <ToastContainer
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-    />
 
+      {/* Toast */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
+
 }

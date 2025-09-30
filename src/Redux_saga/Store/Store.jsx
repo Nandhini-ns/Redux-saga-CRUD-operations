@@ -6,13 +6,6 @@ import { configureStore } from "@reduxjs/toolkit";
 
 // Create saga middleware
 const sagaMiddleware = createSagaMiddleware();
-
-// Create Redux store without DevTools
-// const store = createStore(
-//   Root_Reducer,
-//   applyMiddleware(sagaMiddleware)
-// );
-
  const store = configureStore({
   reducer: Root_Reducer, // oru object illa root reducer single-a irundha direct-a kudukkanum
   middleware: (getDefaultMiddleware) =>
